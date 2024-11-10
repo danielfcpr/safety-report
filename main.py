@@ -12,5 +12,5 @@ app.include_router(report_generation_router)
 @app.get("/")
 async def read_root():
     return {"message": "Hello World",
-            "API status": "running"}
+            "API status": "runninx"}
 

@@ -1,27 +1,25 @@
 # services/object_detection.py
 from ultralytics import YOLO
-from fastapi import APIRouter, File, UploadFile
+from fastapi import APIRouter
 from PIL import Image
-from io import BytesIO
 
 router = APIRouter()
 
 # Load the custom YOLO model
-model = YOLO("security_model_v1.pt")
+model = YOLO("../security_model_v1.pt")
 
 @router.post("/detect-objects")
-async def detect_objects(file: UploadFile = File(...)):
-    # Read and open image
-    image_data = await file.read()
-    img = Image.open(BytesIO(image_data))
+async def detect_objects(image_path: str):
+    # Open the image from the provided path
+    img = Image.open(image_path)
 
-    # Run YOLO detection
-    results = model(img)  # returns a list of Results objects
+    # Perform object detection
+    results = model(img)
 
-    # Extract data from results
-    detections = []
+    # Extract bounding boxes, label names and
+    detection_list = []
     for result in results:
-        # Process each detected item and convert to JSON
-        detections.append(result.tojson())  # Serialize result to JSON
+        result.tojson()
+        detection_list.append(result)
 
-    return {"detections": detections}  # Return JSON response
+    return {"detection list": detection_list}

@@ -1,25 +1,36 @@
-# services/object_detection.py
 from ultralytics import YOLO
-from fastapi import APIRouter
+from fastapi import APIRouter, File, UploadFile, HTTPException
 from PIL import Image
-
+import io
+import json
 router = APIRouter()
 
 # Load the custom YOLO model
 model = YOLO("../security_model_v1.pt")
 
 @router.post("/detect-objects")
-async def detect_objects(image_path: str):
-    # Open the image from the provided path
-    img = Image.open(image_path)
+async def detect_objects(file: UploadFile = File(...)):
+    try:
+        # Read the uploaded image as a PIL Image
+        image_data = await file.read()
+        img = Image.open(io.BytesIO(image_data))
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Invalid image format: {e}")
 
-    # Perform object detection
-    results = model(img)
+    try:
+        # Perform object detection
+        results = model(img)
 
-    # Extract bounding boxes, label names and
-    detection_list = []
-    for result in results:
-        result.tojson()
-        detection_list.append(result)
+        # Convert results to JSON
+        result_string = results[0].to_json(normalize=True, decimals=5)
+        result_json = json.loads(result_string)
 
-    return {"detection list": detection_list}
+        # Extract the 'name' fields
+        object_list = []
+        for item in result_json:
+            object_list.append(item["name"])
+
+        return {"detections": object_list}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Object detection failed: {e}")

@@ -1,7 +1,7 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from services.object_detection import router as object_detection_router, detect_objects
 from services.report_generation import router as report_generation_router, generate_report, DetectionRequest
-
+from typing import List
 app = FastAPI()
 
 # Include the routers for object detection and report generation
@@ -10,13 +10,13 @@ app.include_router(report_generation_router, prefix="/api/report-generation", ta
 
 
 @app.post("/api/process-image")
-async def process_image(file: UploadFile = File(...)):
+async def process_image(files: List[UploadFile] = File(...)):
     """
     Process an image through the entire pipeline: object detection + report generation.
     """
     try:
         # Step 1: Perform object detection
-        detection_results = await detect_objects(file)
+        detection_results = await detect_objects(files)
 
         # Step 2: Generate a report based on detected objects
         report_request = DetectionRequest(detections=detection_results["detections"])

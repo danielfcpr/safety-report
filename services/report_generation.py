@@ -32,12 +32,12 @@ async def generate_report(request: DetectionRequest):
     try:
         # Use the ChatCompletion API
         completion =  client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4o",
             messages=[
                 {"role": "system", "content": "You are an expert report writer specialized in construction site safety."},
                 {"role": "user", "content": prompt},
             ],
-            max_tokens=500,
+            max_tokens=1000,
         )
         # Extract the response text
         report = completion.choices[0].message.content

@@ -15,11 +15,8 @@ async def process_image(files: List[UploadFile] = File(...)):
     Process an image through the entire pipeline: object detection + report generation.
     """
     try:
-        # Step 1: Perform object detection
         detection_results = await detect_objects(files)
-
-        # Step 2: Generate a report based on detected objects
-        report_request = DetectionRequest(detections=detection_results["detections"])
+        report_request = DetectionRequest(detections_summary=detection_results["detections_summary"])
         report = await generate_report(report_request)
 
         return report

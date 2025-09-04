@@ -28,9 +28,8 @@ async def detect_objects(files: List[UploadFile] = File(...)):
 
     try:
         # Perform model inference over list of images
-        results = model(images)
+        results = model(images, verbose=False)
 
-        # Ensure detections_summary is constructed with corresponding filenames
         detections_summary = []
         for idx, result in enumerate(results):
             # Convert result for each image to JSON
